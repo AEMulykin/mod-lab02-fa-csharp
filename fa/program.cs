@@ -6,14 +6,13 @@ namespace fans
     public class State
     {
         public string Name { get; private set; }
-        public Dictionary<char, State> Transitions { get; private set; }
+        public Dictionary<char, State> Transitions { get; private set; } = new Dictionary<char, State>();
         public bool IsAcceptState { get; private set; }
 
         public State(string name, bool isAcceptState)
         {
             Name = name;
             IsAcceptState = isAcceptState;
-            Transitions = new Dictionary<char, State>();
         }
 
         public void AddTransition(char symbol, State state)
@@ -47,13 +46,15 @@ namespace fans
             e.AddTransition('1', e);
         }
 
-        public bool? Run(IEnumerable<char> s)
+        public bool? Run(string s)
         {
-            State current = initialState;
-            foreach (var c in s)
+            var current = initialState;
+            foreach (var symbol in s)
             {
-                if (!current.Transitions.TryGetValue(c, out current))
+                if (!current.Transitions.TryGetValue(symbol, out current))
+                {
                     return null;
+                }
             }
             return current.IsAcceptState;
         }
@@ -74,20 +75,22 @@ namespace fans
             initialState.AddTransition('0', c);
             initialState.AddTransition('1', b);
             b.AddTransition('0', d);
-            b.AddTransition('1', a);
-            c.AddTransition('0', a);
+            b.AddTransition('1', initialState);
+            c.AddTransition('0', initialState);
             c.AddTransition('1', d);
             d.AddTransition('0', b);
             d.AddTransition('1', c);
         }
 
-        public bool? Run(IEnumerable<char> s)
+        public bool? Run(string s)
         {
-            State current = initialState;
-            foreach (var c in s)
+            var current = initialState;
+            foreach (var symbol in s)
             {
-                if (!current.Transitions.TryGetValue(c, out current))
+                if (!current.Transitions.TryGetValue(symbol, out current))
+                {
                     return null;
+                }
             }
             return current.IsAcceptState;
         }
@@ -112,13 +115,15 @@ namespace fans
             c.AddTransition('1', c);
         }
 
-        public bool? Run(IEnumerable<char> s)
+        public bool? Run(string s)
         {
-            State current = initialState;
-            foreach (var c in s)
+            var current = initialState;
+            foreach (var symbol in s)
             {
-                if (!current.Transitions.TryGetValue(c, out current))
+                if (!current.Transitions.TryGetValue(symbol, out current))
+                {
                     return null;
+                }
             }
             return current.IsAcceptState;
         }
@@ -128,18 +133,18 @@ namespace fans
     {
         static void Main(string[] args)
         {
-            string s = "0101";
+            string testString = "0101";
             FA1 fa1 = new FA1();
-            bool? result1 = fa1.Run(s);
-            Console.WriteLine(result1);
-
             FA2 fa2 = new FA2();
-            bool? result2 = fa2.Run(s);
-            Console.WriteLine(result2);
-
             FA3 fa3 = new FA3();
-            bool? result3 = fa3.Run(s);
-            Console.WriteLine(result3);
+
+            bool? resultFA1 = fa1.Run(testString);
+            bool? resultFA2 = fa2.Run(testString);
+            bool? resultFA3 = fa3.Run(testString);
+
+            Console.WriteLine($"Result for FA1: {resultFA1}");
+            Console.WriteLine($"Result for FA2: {resultFA2}");
+            Console.WriteLine($"Result for FA3: {resultFA3}");
         }
     }
 }
