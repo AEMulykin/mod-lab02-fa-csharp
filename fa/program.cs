@@ -5,9 +5,9 @@ namespace fans
 {
     public class State
     {
-        public string Name { get; }
-        public Dictionary<char, State> Transitions { get; }
-        public bool IsAcceptState { get; }
+        public string Name { get; private set; }
+        public Dictionary<char, State> Transitions { get; private set; }
+        public bool IsAcceptState { get; private set; }
 
         public State(string name, bool isAcceptState)
         {
@@ -16,42 +16,27 @@ namespace fans
             Transitions = new Dictionary<char, State>();
         }
 
-        public void AddTransition(char input, State newState)
+        public void AddTransition(char symbol, State state)
         {
-            Transitions[input] = newState;
+            Transitions[symbol] = state;
         }
     }
 
-    public class FiniteAutomaton
+    public class FA1
     {
-        private readonly State _initialState;
+        private State initialState;
 
-        public FiniteAutomaton(State initialState)
+        public FA1()
         {
-            _initialState = initialState;
-        }
+            initialState = new State("a", false);
 
-        public bool? Run(IEnumerable<char> input)
-        {
-            State currentState = _initialState;
-            foreach (char symbol in input)
-            {
-                if (!currentState.Transitions.TryGetValue(symbol, out currentState))
-                {
-                    return null;
-                }
-            }
+            var b = new State("b", false);
+            var c = new State("c", true);
+            var d = new State("d", false);
+            var e = new State("e", false);
 
-            return currentState.IsAcceptState;
-        }
-    }
-
-    public class Program
-    {
-        static void SetupTransitionsForFA1(State a, State b, State c, State d, State e)
-        {
-            a.AddTransition('0', b);
-            a.AddTransition('1', e);
+            initialState.AddTransition('0', b);
+            initialState.AddTransition('1', e);
             b.AddTransition('0', d);
             b.AddTransition('1', c);
             c.AddTransition('0', d);
@@ -62,10 +47,32 @@ namespace fans
             e.AddTransition('1', e);
         }
 
-        static void SetupTransitionsForFA2(State a, State b, State c, State d)
+        public bool? Run(IEnumerable<char> s)
         {
-            a.AddTransition('0', c);
-            a.AddTransition('1', b);
+            State current = initialState;
+            foreach (var c in s)
+            {
+                if (!current.Transitions.TryGetValue(c, out current))
+                    return null;
+            }
+            return current.IsAcceptState;
+        }
+    }
+
+    public class FA2
+    {
+        private State initialState;
+
+        public FA2()
+        {
+            initialState = new State("a", false);
+
+            var b = new State("b", false);
+            var c = new State("c", false);
+            var d = new State("d", true);
+
+            initialState.AddTransition('0', c);
+            initialState.AddTransition('1', b);
             b.AddTransition('0', d);
             b.AddTransition('1', a);
             c.AddTransition('0', a);
@@ -74,49 +81,65 @@ namespace fans
             d.AddTransition('1', c);
         }
 
-        static void SetupTransitionsForFA3(State a, State b, State c)
+        public bool? Run(IEnumerable<char> s)
         {
-            a.AddTransition('0', a);
-            a.AddTransition('1', b);
-            b.AddTransition('0', a);
+            State current = initialState;
+            foreach (var c in s)
+            {
+                if (!current.Transitions.TryGetValue(c, out current))
+                    return null;
+            }
+            return current.IsAcceptState;
+        }
+    }
+
+    public class FA3
+    {
+        private State initialState;
+
+        public FA3()
+        {
+            initialState = new State("a", false);
+
+            var b = new State("b", false);
+            var c = new State("c", true);
+
+            initialState.AddTransition('0', initialState);
+            initialState.AddTransition('1', b);
+            b.AddTransition('0', initialState);
             b.AddTransition('1', c);
             c.AddTransition('0', c);
             c.AddTransition('1', c);
         }
 
+        public bool? Run(IEnumerable<char> s)
+        {
+            State current = initialState;
+            foreach (var c in s)
+            {
+                if (!current.Transitions.TryGetValue(c, out current))
+                    return null;
+            }
+            return current.IsAcceptState;
+        }
+    }
+
+    class Program
+    {
         static void Main(string[] args)
         {
-            string input = "0101";
+            string s = "0101";
+            FA1 fa1 = new FA1();
+            bool? result1 = fa1.Run(s);
+            Console.WriteLine(result1);
 
-            // FA1
-            State aFA1 = new State("a", false);
-            State bFA1 = new State("b", false);
-            State cFA1 = new State("c", true);
-            State dFA1 = new State("d", false);
-            State eFA1 = new State("e", false);
-            SetupTransitionsForFA1(aFA1, bFA1, cFA1, dFA1, eFA1);
-            FiniteAutomaton fa1 = new FiniteAutomaton(aFA1);
-            bool? resultFA1 = fa1.Run(input);
-            Console.WriteLine($"Result FA1: {resultFA1}");
+            FA2 fa2 = new FA2();
+            bool? result2 = fa2.Run(s);
+            Console.WriteLine(result2);
 
-            // FA2
-            State aFA2 = new State("a", false);
-            State bFA2 = new State("b", false);
-            State cFA2 = new State("c", false);
-            State dFA2 = new State("d", true);
-            SetupTransitionsForFA2(aFA2, bFA2, cFA2, dFA2);
-            FiniteAutomaton fa2 = new FiniteAutomaton(aFA2);
-            bool? resultFA2 = fa2.Run(input);
-            Console.WriteLine($"Result FA2: {resultFA2}");
-
-            // FA3
-            State aFA3 = new State("a", false);
-            State bFA3 = new State("b", false);
-            State cFA3 = new State("c", true);
-            SetupTransitionsForFA3(aFA3, bFA3, cFA3);
-            FiniteAutomaton fa3 = new FiniteAutomaton(aFA3);
-            bool? resultFA3 = fa3.Run(input);
-            Console.WriteLine($"Result FA3: {resultFA3}");
+            FA3 fa3 = new FA3();
+            bool? result3 = fa3.Run(s);
+            Console.WriteLine(result3);
         }
     }
 }
