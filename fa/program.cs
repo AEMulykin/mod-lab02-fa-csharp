@@ -41,11 +41,12 @@ namespace fans
                     return null;
                 }
             }
+
             return currentState.IsAcceptState;
         }
     }
 
-    class Program
+    public class Program
     {
         static void SetupTransitionsForFA1(State a, State b, State c, State d, State e)
         {
@@ -119,4 +120,3 @@ namespace fans
         }
     }
 }
-Этот код завершает рефакторинг исходного кода, предоставляя чёткую и краткую структуру для создания конечных автоматов и их использования. Каждый из конечных автоматов может быть запущен с любой входной по
